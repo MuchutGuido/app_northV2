@@ -9,7 +9,8 @@
     "@sap-cloud-sdk/http-client": "^3.15.0",
     "@sap-cloud-sdk/resilience": "^3.15.0",
     "@sap/cds": "^7",
-    "express": "^4"
+    "express": "^4",
+    "@sap/xssec": "^3"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1",
@@ -30,6 +31,9 @@
             "path": "/v2/northwind/northwind.svc/"
           }
         }
+      },
+      "[production]": {
+        "auth": "xsuaa"
       }
     }
   }
