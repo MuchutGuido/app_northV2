@@ -1,8 +1,7 @@
 using Northwind from './external/Northwind.cds';
 
-service NorthwindSampleService {
+@path: '/North'
+service North {
     @readonly
-    entity Products as projection on Northwind.Products
-    {        key ProductID, ProductName, SupplierID, CategoryID, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued     }    
-;
+    entity Products as projection on Northwind.Products;
 }
