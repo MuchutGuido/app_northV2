@@ -34,7 +34,8 @@
         }
       },
       "[production]": {
-        "auth": "xsuaa"
+        "auth": "xsuaa",
+        "connectivity": true
       }
     }
   }
