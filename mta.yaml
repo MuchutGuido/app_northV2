@@ -62,7 +62,7 @@ resources:
     parameters:
       config:
         tenant-mode: dedicated
-        xsappname: app_northV2-${org}-${space}
+        xsappname: app_northV2
       path: ./xs-security.json
       service: xsuaa
       service-plan: application
