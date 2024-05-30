@@ -3,85 +3,120 @@ ID: app_northV2
 description: A simple CAP project.
 version: 1.0.0
 modules:
-  - name: app_northV2-srv
-    type: nodejs
-    path: gen/srv
-    requires:
-      - name: app_northV2-destination-service
-      - name: app_northV2-auth
-      - name: app_northV2-connectivity
-    provides:
-      - name: srv-api
-        properties:
-          srv-url: ${default-url}
+- name: app_northV2-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: app_northV2-destination-service
+  - name: app_northV2-auth
+  - name: app_northV2-connectivity
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+    readiness-health-check-http-endpoint: /health
+    readiness-health-check-type: http
+  build-parameters:
+    builder: npm
+- name: app_northV2-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: app_northV2-destination-service
     parameters:
-      buildpack: nodejs_buildpack
-      readiness-health-check-http-endpoint: /health
-      readiness-health-check-type: http
-    build-parameters:
-      builder: npm
-  - name: app_northV2-destination-content
-    type: com.sap.application.content
-    requires:
-      - name: app_northV2-destination-service
-        parameters:
-          content-target: true
-      - name: app_northV2_html_repo_host
-        parameters:
-          service-key:
-            name: app_northV2_html_repo_host-key
-      - name: app_northV2-auth
-        parameters:
-          service-key:
-            name: app_northV2-auth-key
+      content-target: true
+  - name: app_northV2_html_repo_host
     parameters:
-      content:
+      service-key:
+        name: app_northV2_html_repo_host-key
+  - name: app_northV2-auth
+    parameters:
+      service-key:
+        name: app_northV2-auth-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: north_productos_v2_app_northV2_html_repo_host
+          ServiceInstanceName: app_northV2-html5-app-host-service
+          ServiceKeyName: app_northV2_html_repo_host-key
+          sap.cloud.service: north_productos_v2
+        - Authentication: OAuth2UserTokenExchange
+          Name: north_productos_v2_app_northV2_auth
+          ServiceInstanceName: app_northV2-auth
+          ServiceKeyName: app_northV2-auth-key
+          sap.cloud.service: north_productos_v2
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: app_northV2-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: app_northV2_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - productosv2.zip
+      name: productosv2
+      target-path: resources/
+- name: productosv2
+  type: html5
+  path: app/productos_v2
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: app_northV2-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
         instance:
           destinations:
-            - Name: north_productos_v2_app_northV2_html_repo_host
-              ServiceInstanceName: app_northV2-html5-app-host-service
-              ServiceKeyName: app_northV2_html_repo_host-key
-              sap.cloud.service: north_productos_v2
-            - Authentication: OAuth2UserTokenExchange
-              Name: north_productos_v2_app_northV2_auth
-              ServiceInstanceName: app_northV2-auth
-              ServiceKeyName: app_northV2-auth-key
-              sap.cloud.service: north_productos_v2
-          existing_destinations_policy: ignore
-    build-parameters:
-      no-source: true
-
-resources:
-  - name: app_northV2-destination-service
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: destination
-      service-plan: lite
-  - name: app_northV2-auth
-    type: org.cloudfoundry.managed-service
-    parameters:
-      config:
-        tenant-mode: dedicated
-        xsappname: app_northV2
-      path: ./xs-security.json
-      service: xsuaa
-      service-plan: application
-  - name: app_northV2_html_repo_host
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: html5-apps-repo
-      service-name: app_northV2-html5-app-host-service
-      service-plan: app-host
-  - name: app_northV2-connectivity
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: connectivity
-      service-plan: lite
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+    service: destination
+    service-plan: lite
+- name: app_northV2-auth
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      tenant-mode: dedicated
+      xsappname: app_northV2
+    path: ./xs-security.json
+    service: xsuaa
+    service-plan: application
+- name: app_northV2_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: app_northV2-html5-app-host-service
+    service-plan: app-host
+- name: app_northV2-connectivity
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: connectivity
+    service-plan: lite
 parameters:
+  deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npm ci
-        - npx cds build --production
+  - builder: custom
+    commands:
+    - npm ci
+    - npx cds build --production

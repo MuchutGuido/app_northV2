@@ -9,17 +9,23 @@
     "@sap-cloud-sdk/http-client": "^3.15.0",
     "@sap-cloud-sdk/resilience": "^3.15.0",
     "@sap/cds": "^7",
-    "express": "^4",
-    "@sap/xssec": "^3"
+    "@sap/xssec": "^3",
+    "express": "^4"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1",
     "@sap/cds-dk": "^7",
     "@sap/eslint-plugin-cds": "^3",
-    "eslint": "^9"
+    "@sap/ux-specification": "^1.120.11",
+    "eslint": "^9",
+    "rimraf": "^5.0.5"
   },
   "scripts": {
-    "start": "cds-serve"
+    "start": "cds-serve",
+    "watch-productos_v2": "cds watch --open productos_v2/webapp/index.html?sap-ui-xx-viewCache=false",
+    "undeploy": "cf undeploy app_northV2 --delete-services --delete-service-keys --delete-service-brokers",
+    "build": "rimraf resources mta_archives && mbt build --mtar archive",
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
   },
   "cds": {
     "requires": {
@@ -38,5 +44,8 @@
         "connectivity": true
       }
     }
-  }
+  },
+  "sapux": [
+    "app/productos_v2"
+  ]
 }
