@@ -26,16 +26,7 @@ modules:
           srv-url: ${default-url}
     requires:
       - name: app_northV2-destination
-      - name: app_northV2-db
       - name: app_northV2-auth
-
-  - name: app_northV2-db-deployer
-    type: hdb
-    path: gen/db
-    parameters:
-      buildpack: nodejs_buildpack
-    requires:
-      - name: app_northV2-db
 
 resources:
   - name: app_northV2-destination
@@ -43,11 +34,6 @@ resources:
     parameters:
       service: destination
       service-plan: lite
-  - name: app_northV2-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
   - name: app_northV2-auth
     type: org.cloudfoundry.managed-service
     parameters:
