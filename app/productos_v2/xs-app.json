@@ -5,7 +5,7 @@
     {
       "source": "^/North/(.*)$",
       "target": "/North/$1",
-      "destination": "north_productos_v2_app_northV2_html_repo_host",
+      "destination": "v2-north",
       "authenticationType": "xsuaa",
       "csrfProtection": false
     },
